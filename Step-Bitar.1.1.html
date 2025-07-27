@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Survival Game with JSON Characters</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #111;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+      margin: auto;
+      border: 2px solid #fff;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let keys = {};
+    document.addEventListener("keydown", e => keys[e.key] = true);
+    document.addEventListener("keyup", e => keys[e.key] = false);
+
+    // JSON karakter verisi
+    const characterData = [
+      {
+        "name": "player1",
+        "x": 100,
+        "y": 100,
+        "color": "lime",
+        "size": 40,
+        "speed": 3,
+        "keys": { "up": "w", "down": "s", "left": "a", "right": "d" }
+      },
+      {
+        "name": "player2",
+        "x": 200,
+        "y": 100,
+        "color": "cyan",
+        "size": 40,
+        "speed": 3,
+        "keys": { "up": "ArrowUp", "down": "ArrowDown", "left": "ArrowLeft", "right": "ArrowRight" }
+      }
+    ];
+
+    let characters = [];
+
+    function loadCharacters(data) {
+      data.forEach(c => {
+        characters.push({ ...c });
+      });
+    }
+
+    loadCharacters(characterData);
+
+    function updateCharacters() {
+      characters.forEach(c => {
+        if (keys[c.keys.up]) c.y -= c.speed;
+        if (keys[c.keys.down]) c.y += c.speed;
+        if (keys[c.keys.left]) c.x -= c.speed;
+        if (keys[c.keys.right]) c.x += c.speed;
+      });
+    }
+
+    function drawCharacters() {
+      characters.forEach(c => {
+        ctx.fillStyle = c.color;
+        ctx.fillRect(c.x, c.y, c.size, c.size);
+      });
+    }
+
+    // Zombi sistemi
+    let zombies = [];
+
+    function spawnZombie() {
+      let zombie = {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: 30,
+        speed: 1.2,
+        color: "red"
+      };
+      zombies.push(zombie);
+    }
+
+    function updateZombies() {
+      zombies.forEach(zombie => {
+        let target = characters[0];
+        let dx = target.x - zombie.x;
+        let dy = target.y - zombie.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
+        zombie.x += (dx / distance) * zombie.speed;
+        zombie.y += (dy / distance) * zombie.speed;
+
+        if (distance < target.size / 2 + zombie.size / 2) {
+          console.log("Zombi temas etti!");
+        }
+      });
+    }
+
+    function drawZombies() {
+      zombies.forEach(zombie => {
+        ctx.fillStyle = zombie.color;
+        ctx.fillRect(zombie.x, zombie.y, zombie.size, zombie.size);
+      });
+    }
+
+    function update() {
+      updateCharacters();
+      updateZombies();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawCharacters();
+      drawZombies();
+    }
+
+    function gameLoop() {
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    setInterval(spawnZombie, 2000);
+    gameLoop();
+  </script>
+</body>
+</html>
