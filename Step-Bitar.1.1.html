@@ -6,7 +6,7 @@
   <style>
     body {
       margin: 0;
-      background-color: #111;
+      background-color: #353535;
       overflow: hidden;
     }
     canvas {
@@ -15,6 +15,7 @@
       border: 2px solid #fff;
     }
   </style>
+
 </head>
 <body>
   <canvas id="gameCanvas" width="800" height="600"></canvas>
@@ -23,10 +24,11 @@
     const ctx = canvas.getContext("2d");
 
     let keys = {};
+    // Tuş takibi
     document.addEventListener("keydown", e => keys[e.key] = true);
     document.addEventListener("keyup", e => keys[e.key] = false);
 
-    // JSON karakter verisi
+    // Karakter bilgileri JSON formatında
     const characterData = [
       {
         "name": "player1",
@@ -37,27 +39,17 @@
         "speed": 3,
         "keys": { "up": "w", "down": "s", "left": "a", "right": "d" }
       },
-      {
-        "name": "player2",
-        "x": 200,
-        "y": 100,
-        "color": "cyan",
-        "size": 40,
-        "speed": 3,
-        "keys": { "up": "ArrowUp", "down": "ArrowDown", "left": "ArrowLeft", "right": "ArrowRight" }
-      }
     ];
 
     let characters = [];
 
+    // Karakterleri yükle
     function loadCharacters(data) {
-      data.forEach(c => {
-        characters.push({ ...c });
-      });
+      data.forEach(c => characters.push({ ...c }));
     }
-
     loadCharacters(characterData);
 
+    // Karakter hareketlerini güncelle
     function updateCharacters() {
       characters.forEach(c => {
         if (keys[c.keys.up]) c.y -= c.speed;
@@ -67,6 +59,7 @@
       });
     }
 
+    // Karakterleri çiz
     function drawCharacters() {
       characters.forEach(c => {
         ctx.fillStyle = c.color;
@@ -77,17 +70,18 @@
     // Zombi sistemi
     let zombies = [];
 
+    // Rastgele zombi oluştur
     function spawnZombie() {
-      let zombie = {
+      zombies.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         size: 30,
         speed: 1.2,
         color: "red"
-      };
-      zombies.push(zombie);
+      });
     }
 
+    // Zombileri güncelle (hedef 1. karakter)
     function updateZombies() {
       zombies.forEach(zombie => {
         let target = characters[0];
@@ -103,6 +97,7 @@
       });
     }
 
+    // Zombileri çiz
     function drawZombies() {
       zombies.forEach(zombie => {
         ctx.fillStyle = zombie.color;
@@ -110,24 +105,27 @@
       });
     }
 
+    // Oyun güncelleme fonksiyonu
     function update() {
       updateCharacters();
       updateZombies();
     }
 
+    // Oyun çizim fonksiyonu
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawCharacters();
       drawZombies();
     }
 
+    // Ana oyun döngüsü
     function gameLoop() {
       update();
       draw();
       requestAnimationFrame(gameLoop);
     }
 
-    setInterval(spawnZombie, 2000);
+    setInterval(spawnZombie, 5000); // 5ds saniyede bir zombi doğar
     gameLoop();
   </script>
 </body>
